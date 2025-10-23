@@ -1,94 +1,144 @@
-# Excel data aggregation
+# Next Word Prediction using LSTM
 
-This project performs analysis on retail sales data using Python and pandas. It consists of six scripts, each handling a different analytical task including product sales ranking, discount impact, customer segmentation, and category-level performance.
+A deep learning-based text generation system trained on Sherlock Holmes stories to predict the next words in a sequence.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
-- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Model Architecture](#model-architecture)
 - [Usage](#usage)
-- [Scripts Summary](#scripts-summary)
-
+- [How It Works](#how-it-works)
+- [Model Files](#model-files)
+- [Limitations](#limitations)
 
 ## Overview
 
-The scripts analyze Excel files containing information on products, sales transactions, customers, and special offers. The goal is to extract actionable business insights regarding sales volume, discount effectiveness, customer value, and product category performance.
+This project uses a Long Short-Term Memory (LSTM) neural network to learn patterns from text and predict subsequent words. The model is trained on Sherlock Holmes stories and provides a simple GUI for interactive text prediction.
 
-## Features
+## Project Structure
 
-- Analyze best and worst selling products
-- Identify the most sold product on discount 
-- Calculate revenue before and after discounts
-- Find top customers by order frequency
-- Segment customers by purchase frequency and spending
-- Summarize total sales, discounts, and order volume by product category
+```
+.
+├── train_v3.py                      # Training script
+├── predict_v3.py                    # Prediction GUI application
+├── sherlock-holm.es_stories_plain-text_advs.txt  # Training data
+├── next_word_model_v3_simple.h5     # Trained Keras model
+├── tokenizer_v3_simple.pkl          # Tokenizer for text preprocessing
+├── model_metadata_v3_simple.pkl     # Model configuration metadata
+└── README.md                        # This file
+```
 
-## Installation
-
-### Requirements
-
-- Python 3.x
-- pandas
-
-Use pip to install the required libraries:
-```pip install pandas```
+## Requirements
 
 
-### File Setup
+```bash
+pip install numpy tensorflow tkinter pickle-mixin
+```
 
-Place the following Excel files in the project directory or update their paths in the code:
+- **Python**: 3.7+
+- **TensorFlow**: 2.x
+- **NumPy**: For numerical operations
+- **Tkinter**: For GUI 
+- **Pickle**: For serialization 
 
-- product.xlsx
-- product_category.xlsx
-- product_subcategory.xlsx
-- sales.xlsx
-- sales_details.xlsx
-- special_offer.xlsx
+## Model Architecture
+
+### Network Structure
+
+- **Embedding Layer**: 100-dimensional word embeddings
+- **LSTM Layer**: 150 units for sequence processing
+- **Dense Output Layer**: Softmax activation for word probability distribution
+
+### Training Configuration
+
+- **Loss Function**: Categorical Cross-Entropy
+- **Optimizer**: Adam
+- **Epochs**: 100
+- **Input**: N-gram sequences from text
+- **Output**: Next word prediction (one-hot encoded)
 
 ## Usage
 
-Each script is self-contained and can be run independently. 
+### 1. Training the Model
 
-Example:
+Run the training script to create a new model:
 
-python 13_customer_matrix.py
+```bash
+python train_v3.py
+```
 
-## Scripts Summary
+**What it does:**
+- Loads the Sherlock Holmes text file
+- Creates a tokenizer and vocabulary
+- Generates n-gram sequences for training
+- Trains an LSTM model for 100 epochs
+- Saves the model, tokenizer, and metadata
 
-### 9. Most and least sold products 
-
-- Merges product and sales data.
-- Groups by product name and sums total quantity sold.
-- Identifies the most and least sold products.
-
-### 10. Most sold product on discount
-
-- Merges sales data with special offers.
-- Filters orders that occurred during valid discount periods.
-- Aggregates total quantity sold under discount conditions.
-
-### 11. Discount calculator
-
-- Calculates discount amount per unit and total discount per order.
-- Computes original and discounted prices.
-- Displays all transactions where a discount was applied.
-
-### 12. Top Customers by Orders
-
-- Groups sales data by customer ID.
-- Identifies customers with the highest number of orders.
-
-### 13. Customer matrix
-
-- Classifies customers by order count: New, Repeated, Fan.
-- Classifies customers by spending: Frugal Spender, Medium Spender, High Spender.
-- Outputs a matrix for frequency and monetary categories.
-
-### 14. Category sales summary
-
-- Merges sales data with product category.
-- Aggregates total sales, total discounts, and order count by category.
-- Identifies the category with highest sales and the one with most orders.
+**Output files:**
+- `next_word_model_v3_simple.h5` - Trained model
+- `tokenizer_v3_simple.pkl` - Fitted tokenizer
+- `model_metadata_v3_simple.pkl` - Model configuration
 
 
+### 2. Running the Prediction GUI
+
+Launch the graphical interface:
+
+```bash
+python predict_v3.py
+```
+
+**GUI Features:**
+- **Text Input Area**: Enter your seed text
+- **Word Count Selector**: Select number of words to predict (1-10)
+- **Predict Button**: Generate predictions
+- **Clear Button**: Reset all fields
+- **Result Area**: Displays the complete text with predictions
+
+
+## How It Works
+
+### Training Process
+
+1. **Data Loading**: Reads the Sherlock Holmes text file
+2. **Tokenization**: Converts words to numerical indices
+3. **Sequence Generation**: Creates n-gram sequences from each line
+   - For the sentence "the cat sat", it creates:
+     - [the, cat]
+     - [the, cat, sat]
+4. **Padding**: Sequences are padded to uniform length
+5. **Data Preparation**: 
+   - X: All words except the last
+   - y: The last word (target)
+6. **Training**: Model learns to predict the next word given the sequence
+
+
+
+## Model Files
+
+### next_word_model_v3_simple.h5
+The trained Keras model containing:
+- Network architecture
+- Learned weights and biases
+- Compilation configuration
+
+### tokenizer_v3_simple.pkl
+Serialized tokenizer containing:
+- Word-to-index mappings
+- Index-to-word mappings
+- Vocabulary size
+
+### model_metadata_v3_simple.pkl
+Configuration metadata:
+- `max_sequence_len`: Maximum input sequence length
+- `total_words`: Vocabulary size
+
+## Limitations
+
+- Predictions are based solely on the training corpus (Sherlock Holmes stories)
+- Model generates one word at a time greedily (no beam search)
+- No temperature control for prediction diversity
+- Limited context window based on max sequence length
+- May generate repetitive or nonsensical sequences
